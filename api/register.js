@@ -1,6 +1,6 @@
 
 const bcrypt=require('bcryptjs');
-const {pool}=require('./util/db'); const {json,readJSON}=require('./util/http'); const {sign}=require('./util/jwt');
+const {pool}=require('../lib/db'); const {json,readJSON}=require('../lib/http'); const {sign}=require('../lib/jwt');
 module.exports = async (req,res)=>{
   if(req.method!=='POST') return json(res,405,{error:'Method Not Allowed'});
   const {name,email,password}=await readJSON(req);

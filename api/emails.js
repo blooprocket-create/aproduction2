@@ -1,5 +1,5 @@
 
-const {pool}=require('./util/db'); const {json,readJSON}=require('./util/http');
+const {pool}=require('../lib/db'); const {json,readJSON}=require('../lib/http');
 module.exports = async (req,res)=>{
   if(req.method==='POST'){
     const {email}=await readJSON(req); if(!email) return json(res,400,{error:'Email required'});

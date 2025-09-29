@@ -1,5 +1,5 @@
 
-const {pool}=require('./util/db'); const {json}=require('./util/http'); const {getAuth}=require('./util/guard');
+const {pool}=require('../lib/db'); const {json}=require('../lib/http'); const {getAuth}=require('../lib/guard');
 module.exports = async (req,res)=>{
   const a=getAuth(req); if(!a) return json(res,401,{error:'Unauthorized'});
   const c=await pool.connect();

@@ -8,7 +8,7 @@ async function getOwnedIds(){
 }
 async function renderFeatured(){
   const wrap=document.getElementById('featuredGrid'); if(!wrap) return;
-  const { courses=[] } = await API.get('courses-list').catch(()=>({courses:[]}));
+  const { courses=[] } = await API.get('courses').catch(()=>({courses:[]}));
   const ownedIds = await getOwnedIds();
   const top = courses.slice().sort((a,b)=>(b.sales||0)-(a.sales||0)).slice(0,4);
   wrap.innerHTML='';
@@ -37,7 +37,7 @@ async function renderFeatured(){
 }
 async function renderCatalog(){
   const grid=document.getElementById('catalogGrid'); if(!grid) return;
-  const { courses=[] } = await API.get('courses-list').catch(()=>({courses:[]}));
+  const { courses=[] } = await API.get('courses').catch(()=>({courses:[]}));
   const owned = await getOwnedIds();
   grid.innerHTML='';
   if(!courses.length){ grid.innerHTML="<p class='sub'>No courses yet.</p>"; return; }

@@ -28,7 +28,7 @@ function onlyRoles(roles){
   document.getElementById('tabEmails').onclick=()=>showTab('emails');
 
   async function refreshCourses(){
-    const {courses=[]}=await API.get('courses-list',true);
+    const {courses=[]}=await API.get('courses',true);
     const tb=document.querySelector('#courseTable tbody'); tb.innerHTML='';
     window._courses=courses;
     courses.forEach(c=>{
@@ -58,7 +58,7 @@ function onlyRoles(roles){
     const payload = { id:editingId, title:$('#cTitle').value.trim(), price:parseFloat($('#cPrice').value||'0'),
       hours:parseFloat($('#cHours').value||'0'), level:$('#cLevel').value.trim(), image:$('#cImage').value.trim(),
       description:$('#cDesc').value.trim(), published:$('#cPub').checked };
-    const out = await API.post('courses-update', payload, true);
+    const out = await API.post('courses', payload, true);
     if(out.error){ alert(out.error); return; }
     editingId=null; document.getElementById('addCourse').style.display='';
     const btn=document.getElementById('saveCourse'); if(btn) btn.style.display='none';
@@ -69,7 +69,7 @@ function onlyRoles(roles){
     const $=s=>document.querySelector(s);
     const t=$('#cTitle').value.trim(); const d=$('#cDesc').value.trim();
     if(!t||!d){ alert('Title & Description required'); return; }
-    const out=await API.post('courses-create', {
+    const out=await API.post('courses', {
       title:t, price:parseFloat($('#cPrice').value||'0'), hours:parseFloat($('#cHours').value||'0'),
       level:$('#cLevel').value.trim(), image:$('#cImage').value.trim(), description:d, published:$('#cPub').checked
     }, true);
@@ -80,7 +80,7 @@ function onlyRoles(roles){
 
   async function refreshUsers(){
     const box=document.getElementById('usersBox'); box.innerHTML='';
-    const res=await API.get('users-list', true).catch(()=>({users:[]}));
+    const res=await API.get('users', true).catch(()=>({users:[]}));
     (res.users||[]).forEach(u=>{
       const row=document.createElement('div'); row.className='card';
       row.innerHTML = `<b>${u.name}</b> — ${u.email} <span class="sub">(${u.role})</span>`;
@@ -93,7 +93,7 @@ function onlyRoles(roles){
     const role=document.getElementById('uRole').value;
     const pwd=document.getElementById('uPwd').value.trim();
     if(!name || !email){ alert('Name and email required'); return; }
-    const out = await API.post('users-create', {name,email,role,password:pwd||undefined}, true);
+    const out = await API.post('users', {name,email,role,password:pwd||undefined}, true);
     if(out?.error){ alert(out.error); return; }
     ['uName','uEmail','uPwd'].forEach(id=>document.getElementById(id).value='');
     await refreshUsers();

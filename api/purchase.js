@@ -1,5 +1,5 @@
 
-const {pool}=require('./util/db'); const {json,readJSON}=require('./util/http'); const {getAuth}=require('./util/guard');
+const {pool}=require('../lib/db'); const {json,readJSON}=require('../lib/http'); const {getAuth}=require('../lib/guard');
 module.exports = async (req,res)=>{
   if(req.method!=='POST') return json(res,405,{error:'Method Not Allowed'});
   const a=getAuth(req); if(!a) return json(res,401,{error:'Unauthorized'});
