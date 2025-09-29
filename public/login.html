@@ -3,9 +3,9 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Login — Novus Academy</title><link rel="stylesheet" href="styles.css"/>
 </head><body>
-<div class="bg-grid"></div><div class="bg-noise"></div>
+<div class="bg-grid"></div>
 <header class="header"><div class="container nav">
-  <a class="brand glitch" data-label="Novus Academy" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
+  <a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
   <nav class="flex"></nav>
 </div></header>
 <main class="container">
@@ -14,7 +14,7 @@
   <div class="card" style="max-width:520px">
     <input id="email" class="input" placeholder="Email" type="email">
     <input id="password" class="input" placeholder="Password" type="password" style="margin-top:8px">
-    <button id="loginBtn" class="btn glitch" data-label="Login" style="margin-top:10px">Login</button>
+    <button id="loginBtn" class="btn" style="margin-top:10px">Login</button>
   </div>
 </section>
 <script>
@@ -32,7 +32,7 @@ document.getElementById('loginBtn').addEventListener('click', async ()=>{
 });
 </script>
 </main>
-<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a class="glitch" data-label="Terms" href="terms.html">Terms</a> • <a class="glitch" data-label="Privacy" href="privacy.html">Privacy</a></div></footer>
+<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a href="terms.html">Terms</a> • <a href="privacy.html">Privacy</a></div></footer>
 <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 <script src="auth.js"></script>
 </body></html>

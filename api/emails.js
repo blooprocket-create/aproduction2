@@ -8,5 +8,5 @@ module.exports = async (req,res)=>{
   if(req.method==='GET'){
     const c=await pool.connect(); try{ const r=await c.query('SELECT email, created_at FROM emails ORDER BY created_at DESC LIMIT 500'); return json(res,200,{emails:r.rows}); } finally{ c.release(); }
   }
-  return json(res,405,{error:'Method Not Allowed'});
+  return res.status(405).json({error:'Method Not Allowed'});
 };

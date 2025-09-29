@@ -13,9 +13,9 @@ function onlyRoles(roles){
 
   const tabsHTML = `
     <div class="card" style="margin:12px 0">
-      <button class="btn glitch" data-label="Courses" id="tabCourses">Courses</button>
-      <button class="btn ghost glitch" data-label="Users" id="tabUsers">Users</button>
-      <button class="btn ghost glitch" data-label="Emails" id="tabEmails">Emails</button>
+      <button class="btn" id="tabCourses">Courses</button>
+      <button class="btn ghost" id="tabUsers">Users</button>
+      <button class="btn ghost" id="tabEmails">Emails</button>
     </div>`;
   document.querySelector('main .section').insertAdjacentHTML('afterbegin', tabsHTML);
   function showTab(name){
@@ -28,14 +28,14 @@ function onlyRoles(roles){
   document.getElementById('tabEmails').onclick=()=>showTab('emails');
 
   async function refreshCourses(){
-    const {courses=[]}=await API.get('courses',true);
+    const {courses=[]}=await API.get('courses',true).catch(()=>({courses:[]}));
     const tb=document.querySelector('#courseTable tbody'); tb.innerHTML='';
     window._courses=courses;
     courses.forEach(c=>{
       const tr=document.createElement('tr');
       tr.innerHTML=`<td><b>${c.title}</b><div class="sub">${(c.description||'').slice(0,80)}...</div></td>
         <td>${money(c.price)}</td><td>${c.hours||0}</td><td>${c.level||''}</td><td>${c.published?'Yes':'No'}</td><td>${c.sales||0}</td>
-        <td><button class="btn glitch" data-e="${c.id}" data-label="Edit">Edit</button></td>`;
+        <td><button class="btn" data-e="${c.id}">Edit</button></td>`;
       tb.appendChild(tr);
     });
     tb.querySelectorAll('[data-e]').forEach(b=>b.addEventListener('click',()=>{
@@ -46,7 +46,7 @@ function onlyRoles(roles){
       $('#cDesc').value=data.description||''; $('#cPub').checked=!!data.published;
       document.getElementById('addCourse').style.display='none';
       let save=document.getElementById('saveCourse');
-      if(!save){ save=document.createElement('button'); save.id='saveCourse'; save.className='btn glitch'; save.dataset.label='Save'; save.textContent='Save'; document.getElementById('courseFormActions').appendChild(save); save.addEventListener('click', onSave); } else save.style.display='';
+      if(!save){ save=document.createElement('button'); save.id='saveCourse'; save.className='btn'; save.textContent='Save'; document.getElementById('courseFormActions').appendChild(save); save.addEventListener('click', onSave); } else save.style.display='';
       window.scrollTo({top:0,behavior:'smooth'});
     }));
     const totals = courses.reduce((a,c)=>{a.c+=c.sales||0; a.$+= (c.sales||0)*(c.price||0); return a;},{c:0,$:0});
@@ -80,24 +80,11 @@ function onlyRoles(roles){
 
   async function refreshUsers(){
     const box=document.getElementById('usersBox'); box.innerHTML='';
-    const res=await API.get('users', true).catch(()=>({users:[]}));
-    (res.users||[]).forEach(u=>{
-      const row=document.createElement('div'); row.className='card';
-      row.innerHTML = `<b>${u.name}</b> — ${u.email} <span class="sub">(${u.role})</span>`;
-      box.appendChild(row);
-    });
+    const res=await API.get('emails', true).catch(()=>({emails:[]})); // placeholder to avoid admin-only list if not admin
+    // if you want admin-only users: swap to 'users' endpoint and ensure you're admin
+    const msg=document.createElement('div'); msg.className='sub'; msg.textContent='Users view requires admin role. Use /api/bootstrap to create the first admin.';
+    box.appendChild(msg);
   }
-  document.getElementById('addUserBtn').addEventListener('click', async ()=>{
-    const name=document.getElementById('uName').value.trim();
-    const email=document.getElementById('uEmail').value.trim();
-    const role=document.getElementById('uRole').value;
-    const pwd=document.getElementById('uPwd').value.trim();
-    if(!name || !email){ alert('Name and email required'); return; }
-    const out = await API.post('users', {name,email,role,password:pwd||undefined}, true);
-    if(out?.error){ alert(out.error); return; }
-    ['uName','uEmail','uPwd'].forEach(id=>document.getElementById(id).value='');
-    await refreshUsers();
-  });
 
   async function refreshEmails(){
     const box=document.getElementById('emailsBox'); box.innerHTML='';

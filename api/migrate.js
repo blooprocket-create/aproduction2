@@ -1,6 +1,5 @@
 
 const { pool } = require('../lib/db');
-
 module.exports = async (req, res) => {
   try {
     const c = await pool.connect();
@@ -39,11 +38,6 @@ module.exports = async (req, res) => {
         );
       `);
       res.status(200).json({ ok: true });
-    } finally {
-      c.release();
-    }
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: e.message || 'migration failed' });
-  }
+    } finally { c.release(); }
+  } catch (e) { console.error(e); res.status(500).json({ error: e.message || 'migration failed' }); }
 };

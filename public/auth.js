@@ -12,16 +12,15 @@ function initNav(){
   const nav = document.querySelector('nav.flex');
   if(!nav) return;
   nav.innerHTML = `
-    <a class="glitch" data-label="Courses" href="catalog.html">Courses</a>
-    <a id="accountLink" class="glitch" data-label="Account" href="account.html" style="display:none">Account</a>
-    <a id="adminLink" class="btn ghost glitch" data-label="Control Panel" href="admin.html" style="display:none">Control Panel</a>
-    <a id="loginLink" class="btn glitch" data-label="Login" href="login.html">Login</a>`;
+    <a href="catalog.html">Courses</a>
+    <a id="accountLink" href="account.html" style="display:none">Account</a>
+    <a id="adminLink" class="btn ghost" href="admin.html" style="display:none">Control Panel</a>
+    <a id="loginLink" class="btn" href="login.html">Login</a>`;
   const login = document.getElementById('loginLink');
   const acct  = document.getElementById('accountLink');
   const admin = document.getElementById('adminLink');
   if(u){
     acct.style.display='';
-    login.dataset.label = `Logout (${u.name||'Account'})`;
     login.textContent = `Logout (${u.name||'Account'})`;
     login.href = '#';
     login.onclick = (e)=>{ e.preventDefault(); logoutUser(); };

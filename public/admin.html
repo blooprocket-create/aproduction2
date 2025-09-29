@@ -3,9 +3,9 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Control Panel — Novus Academy</title><link rel="stylesheet" href="styles.css"/>
 </head><body>
-<div class="bg-grid"></div><div class="bg-noise"></div>
+<div class="bg-grid"></div>
 <header class="header"><div class="container nav">
-  <a class="brand glitch" data-label="Novus Academy" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
+  <a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
   <nav class="flex"></nav>
 </div></header>
 <main class="container">
@@ -29,7 +29,7 @@
     <div class="row" style="margin-top:8px;display:flex;align-items:center;gap:8px">
       <label><input id="cPub" type="checkbox" checked> Published</label>
     </div>
-    <div id="courseFormActions" style="margin-top:10px"><button id="addCourse" class="btn glitch" data-label="Add course">Add course</button></div>
+    <div id="courseFormActions" style="margin-top:10px"><button id="addCourse" class="btn">Add course</button></div>
   </div>
   <table class="table" id="courseTable">
     <thead><tr><th>Title</th><th>Price</th><th>Hours</th><th>Level</th><th>Published</th><th>Sales</th><th></th></tr></thead>
@@ -40,17 +40,7 @@
 <section class="section" id="panelUsers" style="display:none">
   <h2>Users</h2>
   <div class="card" style="margin:12px 0; padding:16px">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-      <input id="uName" class="input" placeholder="Name">
-      <input id="uEmail" class="input" placeholder="Email" type="email">
-      <select id="uRole" class="input">
-        <option value="customer">customer</option>
-        <option value="editor">editor</option>
-        <option value="admin">admin</option>
-      </select>
-      <input id="uPwd" class="input" placeholder="Password (optional)" type="password">
-    </div>
-    <button id="addUserBtn" class="btn glitch" data-label="Add user" style="margin-top:10px">Add user</button>
+    <div class="sub">Users management will appear when your account is admin. Use <code>/api/bootstrap</code> once to promote the first user.</div>
   </div>
   <div id="usersBox" class="grid"></div>
 </section>
@@ -60,7 +50,7 @@
 </section>
 <script src="admin.js"></script>
 </main>
-<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a class="glitch" data-label="Terms" href="terms.html">Terms</a> • <a class="glitch" data-label="Privacy" href="privacy.html">Privacy</a></div></footer>
+<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a href="terms.html">Terms</a> • <a href="privacy.html">Privacy</a></div></footer>
 <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 <script src="auth.js"></script>
 </body></html>

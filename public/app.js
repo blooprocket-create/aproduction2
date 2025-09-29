@@ -24,7 +24,7 @@ async function renderFeatured(){
       <p class="sub">${(c.description||'').slice(0,160)}...</p>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
         <div class="mono">${money(c.price)}</div>
-        ${owned?`<a class="btn glitch" data-label="Open" href="account.html">Open</a>`:`<button class="btn glitch" data-label="Buy" data-buy="${c.id}">Buy</button>`}
+        ${owned?`<a class="btn" href="account.html">Open</a>`:`<button class="btn" data-buy="${c.id}">Buy</button>`}
       </div>`;
     wrap.appendChild(el);
   });
@@ -51,7 +51,7 @@ async function renderCatalog(){
       <p class="sub">${(c.description||'').slice(0,160)}...</p>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
         <div class="mono">${money(c.price)}</div>
-        ${isOwned?`<a class="btn glitch" data-label="Open" href="account.html">Open</a>`:`<button class="btn glitch" data-label="Buy" data-id="${c.id}">Buy</button>`}
+        ${isOwned?`<a class="btn" href="account.html">Open</a>`:`<button class="btn" data-id="${c.id}">Buy</button>`}
       </div>`;
     grid.appendChild(el);
   });

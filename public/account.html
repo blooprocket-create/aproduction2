@@ -3,9 +3,9 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Account — Novus Academy</title><link rel="stylesheet" href="styles.css"/>
 </head><body>
-<div class="bg-grid"></div><div class="bg-noise"></div>
+<div class="bg-grid"></div>
 <header class="header"><div class="container nav">
-  <a class="brand glitch" data-label="Novus Academy" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
+  <a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
   <nav class="flex"></nav>
 </div></header>
 <main class="container">
@@ -17,21 +17,26 @@
 </section>
 <script>
 (async function(){
-  const me = await API.get('me', true).catch(()=>null);
-  if(!me?.user){ alert('Please log in.'); location.href='login.html?next=account.html'; return; }
-  const u = me.user; const owned=me.owned||[];
-  document.getElementById('info').innerHTML = `<p><b>Name:</b> ${u.name}<br><b>Email:</b> ${u.email}<br><b>Role:</b> ${u.role}</p>`;
-  const grid=document.getElementById('ownedGrid');
-  if(owned.length===0){ grid.innerHTML="<p class='sub'>No courses yet.</p>"; return; }
-  owned.forEach(c=>{
-    const el=document.createElement('div'); el.className='card';
-    el.innerHTML = `<div class="thumb" style="background-image:url('${c.image||'assets/course.png'}')"></div><h3>${c.title}</h3><a class="btn glitch" data-label="Open" href="course_${c.slug}.html">Open</a>`;
-    grid.appendChild(el);
-  });
+  try{
+    const me = await API.get('me', true);
+    if(!me?.user){ throw new Error('Not logged in'); }
+    const u = me.user; const owned=me.owned||[];
+    document.getElementById('info').innerHTML = `<p><b>Name:</b> ${u.name}<br><b>Email:</b> ${u.email}<br><b>Role:</b> ${u.role}</p>`;
+    const grid=document.getElementById('ownedGrid');
+    if(owned.length===0){ grid.innerHTML="<p class='sub'>No courses yet.</p>"; return; }
+    owned.forEach(c=>{
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML = `<div class="thumb" style="background-image:url('${c.image||'assets/course.png'}')"></div><h3>${c.title}</h3><a class="btn" href="course_${c.slug}.html">Open</a>`;
+      grid.appendChild(el);
+    });
+  }catch(e){
+    document.getElementById('info').innerHTML = "<div class='sub'>Please log in.</div>";
+    setTimeout(()=>location.href='login.html?next=account.html', 900);
+  }
 })();
 </script>
 </main>
-<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a class="glitch" data-label="Terms" href="terms.html">Terms</a> • <a class="glitch" data-label="Privacy" href="privacy.html">Privacy</a></div></footer>
+<footer class="footer"><div class="container">© <span id="year"></span> Novus Academy • <a href="terms.html">Terms</a> • <a href="privacy.html">Privacy</a></div></footer>
 <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 <script src="auth.js"></script>
 </body></html>
