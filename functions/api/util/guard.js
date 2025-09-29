@@ -1,1 +1,0 @@
-const {verify}=require('./jwt'); function getAuth(e){const h=e.headers?.authorization||e.headers?.Authorization||''; const m=h.match(/^Bearer\s+(.+)$/); if(!m) return null; return verify(m[1]); } function requireRole(d,roles=[]){ if(!d) return false; if(!roles.length) return !!d; return roles.includes(d.role); } module.exports={getAuth,requireRole};
