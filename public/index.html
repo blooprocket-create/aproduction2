@@ -111,6 +111,27 @@
   <footer class="footer">
     <div class="container flex" style="justify-content:space-between">
       <div>© <span id="year"></span> Novus Academy</div>
+      <form id="subscribe" class="flex" style="gap:8px">
+  <input id="subEmail" type="email" class="input" placeholder="Your email to get updates" required>
+  <button class="btn" type="submit">Subscribe</button>
+</form>
+<script>
+(function(){
+  const API = {
+    async _parseJSON(res){ const t=await res.text(); try{return JSON.parse(t);}catch{throw new Error('non-JSON');} },
+    async post(path, data){ const r=await fetch('/api/emails',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); return this._parseJSON(r); }
+  };
+  const f=document.getElementById('subscribe'); if(!f) return;
+  f.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email=document.getElementById('subEmail').value.trim();
+    if(!email) return;
+    const out = await API.post('emails',{email}).catch(()=>null);
+    if(out?.ok){ alert('Thanks! You are subscribed.'); f.reset(); } else { alert(out?.error||'Something went wrong.'); }
+  });
+})();
+</script>
+
       <div class="flex" style="gap:16px">
         <a href="terms.html">Terms</a>
         <a href="privacy.html">Privacy</a>
