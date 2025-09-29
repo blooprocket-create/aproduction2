@@ -4,6 +4,7 @@ const { getAuth, requireRole } = require('./util/guard');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
+
   const auth = getAuth(event); if (!auth) return unauthorized();
   if (!requireRole(auth, ['admin','editor'])) return forbidden();
 
