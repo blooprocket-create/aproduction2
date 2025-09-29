@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bootstrap Admin — Novus Academy</title><link rel="stylesheet" href="styles.css"/></head>
+<body><div class="blob"></div><div class="blob b2"></div><div class="blob b3"></div>
+<header class="header"><div class="container nav">
+  <a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
+  <nav class="flex">
+        <a href="catalog.html">Courses</a>
+        <a id="accountLink" href="account.html" style="display:none">Account</a>
+        <a id="loginLink" href="login.html">Login</a>
+        <a href="admin.html" class="btn secondary" data-role="admin-link">Control Panel</a>
+      </nav>
+</div></header>
+<main class="container section">
+  <h1>Bootstrap Admin</h1>
+  <p class="sub" id="status">Create the first admin. This page disables itself once an admin exists.</p>
+  <div class="card" id="formCard">
+    <div class="row">
+      <input id="name" class="input" placeholder="Admin Name"/>
+      <input id="email" class="input" placeholder="admin@yourdomain.com"/>
+      <input id="password" type="password" class="input" placeholder="Password"/>
+      <input id="password2" type="password" class="input" placeholder="Confirm Password"/>
+    </div>
+    <div class="flex" style="margin-top:12px"><button id="create" class="btn">Create Admin</button></div>
+  </div>
+</main>
+<script src="auth.js"></script>
+<script>
+  // Ensure DB exists even if index.html hasn't been opened yet.
+  (function ensureDB(){
+    const key="novus:db"; const raw=localStorage.getItem(key);
+    if(!raw){
+      const seed={ site:{name:"Novus Academy", email:"hello@novus.ac", currency:"USD"}, courses:[], users:[], emails:[] };
+      localStorage.setItem(key, JSON.stringify(seed));
+    } else {
+      try{ JSON.parse(raw); }catch(_){ localStorage.setItem(key, JSON.stringify({site:{name:"Novus Academy", email:"hello@novus.ac", currency:"USD"}, courses:[], users:[], emails:[]})); }
+    }
+  })();
+
+  if(hasValidAdmin()){ document.getElementById("status").textContent="An admin already exists. Redirecting to login..."; document.getElementById("formCard").style.display="none"; setTimeout(()=>location.href="login.html",1200); }
+
+  document.getElementById("create").addEventListener("click", async ()=>{
+    try{
+      const name=document.getElementById("name").value.trim();
+      const email=document.getElementById("email").value.trim();
+      const pw=document.getElementById("password").value;
+      const pw2=document.getElementById("password2").value;
+      if(!name||!email||!pw){ alert("All fields are required."); return; }
+      if(pw!==pw2){ alert("Passwords do not match."); return; }
+
+      // Hash password
+      const enc=new TextEncoder().encode(pw);
+      const buf=await crypto.subtle.digest('SHA-256', enc);
+      const hash=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+
+      // Load or init DB
+      const key="novus:db";
+      let db=null; try{ db=JSON.parse(localStorage.getItem(key)||"null"); }catch(_){ db=null; }
+      if(!db){ db={ site:{name:"Novus Academy", email:"hello@novus.ac", currency:"USD"}, courses:[], users:[], emails:[] }; }
+
+      // Prevent duplicates
+      if(db.users.some(u=>u.email.toLowerCase()===email.toLowerCase())){
+        alert("That email is already registered. Try logging in.");
+        location.href="login.html"; return;
+      }
+
+      const user={ id:crypto.randomUUID(), name, email, role:"admin", passwordHash:hash, ownedCourses:[] };
+      db.users.push(user);
+      localStorage.setItem(key, JSON.stringify(db));
+      localStorage.setItem("novus:session", JSON.stringify({ userId:user.id }));
+      alert("Admin created. Taking you to the Control Panel.");
+      location.href="admin.html";
+    } catch (err){
+      console.error(err);
+      alert("Bootstrap failed: " + (err?.message || err));
+    }
+  });
+</script>
+<script src="auth.js"></script>
+<script>
+  // Hide admin/control-panel links unless role is admin/editor
+  (function(){
+    try {
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide any element with data-role="admin-link" if not admin/editor
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+    } catch(_) {}
+  })();
+</script>
+
+<script src="auth.js"></script>
+<script>
+  (function(){
+    try{
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide any admin-only links
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+      // Login/Logout/Account controls
+      const loginLink = document.getElementById('loginLink');
+      const accountLink = document.getElementById('accountLink');
+      if(user){
+        if(accountLink) accountLink.style.display = '';
+        if(loginLink){
+          loginLink.textContent = `Logout (${user.name||'Account'})`;
+          loginLink.href = '#';
+          loginLink.addEventListener('click', (e)=>{
+            e.preventDefault();
+            logoutUser();
+            // Keep on the same page but refresh UI
+            location.reload();
+          }, { once: true });
+        }
+      } else {
+        if(accountLink) accountLink.style.display = 'none';
+        if(loginLink){
+          loginLink.textContent = 'Login';
+          loginLink.href = 'login.html';
+        }
+      }
+    }catch(_){}
+  })();
+</script>
+
+
+<script src="auth.js"></script>
+<script>
+  // nav-init-singleton
+  (function(){
+    if (window.__navInitOnce) return; window.__navInitOnce = true;
+    try{
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide admin-only links
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+      // Login/Logout/Account controls
+      const loginLink = document.getElementById('loginLink');
+      const accountLink = document.getElementById('accountLink');
+      if(user){
+        if(accountLink) accountLink.style.display = '';
+        if(loginLink){
+          loginLink.textContent = `Logout (${user.name||'Account'})`;
+          loginLink.href = '#';
+          loginLink.addEventListener('click', (e)=>{
+            e.preventDefault();
+            logoutUser();
+            location.reload();
+          }, { once: true });
+        }
+      } else {
+        if(accountLink) accountLink.style.display = 'none';
+        if(loginLink){
+          loginLink.textContent = 'Login';
+          loginLink.href = 'login.html';
+        }
+      }
+    }catch(_){}
+  })();
+</script>
+
+
+<script src="auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  try{
+    const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+    const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+    const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+    const role = user?.role || null;
+    // Admin-only visibility
+    document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+      if(!(role==='admin' || role==='editor')) el.style.display='none';
+    });
+    const loginLink = document.getElementById('loginLink');
+    const accountLink = document.getElementById('accountLink');
+    if(user){
+      if(accountLink) accountLink.style.display='';
+      if(loginLink){
+        loginLink.textContent = `Logout (${user.name||'Account'})`;
+        loginLink.href = '#';
+        loginLink.onclick = (e) => { e.preventDefault(); logoutUser(); location.reload(); };
+      }
+    } else {
+      if(accountLink) accountLink.style.display='none';
+      if(loginLink){ loginLink.textContent='Login'; loginLink.href='login.html'; loginLink.onclick=null; }
+    }
+  }catch(e){ console.warn('nav init error', e); }
+});
+</script>
+
+</body></html>

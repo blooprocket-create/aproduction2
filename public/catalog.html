@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Courses — Novus Academy</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="blob"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a>
+      <nav class="flex">
+        <a href="catalog.html">Courses</a>
+        <a id="accountLink" href="account.html" style="display:none">Account</a>
+        <a id="loginLink" href="login.html">Login</a>
+        <a href="admin.html" class="btn secondary" data-role="admin-link">Control Panel</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <h1>Courses</h1>
+    <p class="sub">Learn to build and launch with AI—clean, practical curriculum. Create an account to purchase and unlock access.</p>
+    <div id="catalogGrid" class="grid"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container flex" style="justify-content:space-between">
+      <div>© <span id="year"></span> Novus Academy</div>
+      <div class="flex" style="gap:16px">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </div>
+  
+</footer>
+<script src="auth.js"></script>
+<script>
+(async function(){
+  const { courses=[] } = await API.get('courses-list');
+  const grid=document.getElementById('catalogGrid'); grid.innerHTML='';
+  const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n||0);
+  if(courses.length===0){ grid.innerHTML='<p class="sub">No courses yet.</p>'; return; }
+  courses.forEach(c=>{
+    const el=document.createElement('div'); el.className='card';
+    el.innerHTML=`<div style="aspect-ratio:16/9;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:url('${c.image||'assets/course.png'}') center/cover no-repeat"></div>
+      <h3>${c.title}</h3><div class="meta">${c.level||''} • ${c.hours||0} hrs</div>
+      <p class="sub">${c.description||''}</p>
+      <div class="flex" style="justify-content:space-between;margin-top:10px">
+        <div class="price">${money(c.price)}</div>
+        <button class="btn" data-buy="${c.id}">Buy</button>
+      </div>`;
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll('[data-buy]').forEach(btn=>btn.addEventListener('click', async (e)=>{
+    const id=e.currentTarget.getAttribute('data-buy');
+    if(!currentUser()){ if(confirm('You need an account to buy. Create one now?')) location.href='register.html?next=account.html'; return; }
+    const out = await API.post('purchase', {courseId:id}, true);
+    if(out.error){ alert(out.error); return; }
+    alert('Access granted!'); location.href='courses.html';
+  }));
+})();
+</script>
+
+
+  <script src="auth.js"></script>
+  <script>
+    (function(){
+      document.getElementById("year").innerText=new Date().getFullYear();
+      // Hide admin links for non-admin/editor
+      try{
+        const s=JSON.parse(localStorage.getItem('novus:session')||'null');
+        const db=JSON.parse(localStorage.getItem('novus:db')||'null');
+        const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+        const role=user?.role||null;
+        document.querySelectorAll('[data-role=\"admin-link\"]').forEach(el=>{ if(!(role==='admin'||role==='editor')) el.style.display='none'; });
+      }catch(_){}
+      // Render catalog
+      const db=JSON.parse(localStorage.getItem('novus:db'));
+      const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:(db?.site?.currency||'USD')}).format(n);
+      const grid=document.getElementById('catalogGrid'); grid.innerHTML='';
+      const list=(db?.courses||[]).filter(c=>c.published);
+      if(list.length===0){ grid.innerHTML = "<p class='sub'>No courses published yet.</p>"; return; }
+      list.forEach(c=>{
+        const el=document.createElement('div'); el.className='card';
+        el.innerHTML=`
+          <div style="aspect-ratio:16/9;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+            background:linear-gradient(120deg, rgba(125,249,255,.18), transparent 40%), url('${c.image}') center/cover no-repeat"></div>
+          <h3>${c.title}</h3>
+          <div class="meta">${c.level||""} • ${c.hours||0} hrs</div>
+          <p class="sub" style="margin:.5rem 0 0">${c.description||""}</p>
+          <div class="flex" style="justify-content:space-between;margin-top:10px">
+            <div class="price">${money(c.price||0)}</div>
+            <button class="btn" data-buy="${c.id}">Buy</button>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+      // buy handlers
+      grid.querySelectorAll("[data-buy]").forEach(btn=>btn.addEventListener("click",(e)=>{
+        const id=e.currentTarget.getAttribute("data-buy");
+        const db=JSON.parse(localStorage.getItem('novus:db'));
+        const item=(db.courses||[]).find(c=>c.id===id);
+        const sess = JSON.parse(localStorage.getItem('novus:session')||'null');
+        if(!sess){ if(confirm('You need an account to buy. Create one now?')) location.href='register.html?next=account.html'; return; }
+        const user = (db.users||[]).find(u=>u.id===sess.userId);
+        if(!user){ alert('Session invalid. Please log in again.'); location.href='login.html'; return; }
+        if(confirm(`Simulate purchase of ${item.title} — ${new Intl.NumberFormat('en-US',{style:'currency',currency:(db?.site?.currency||'USD')}).format(item.price)}?`)){
+          user.ownedCourses = user.ownedCourses || [];
+          if(!user.ownedCourses.includes(item.id)) user.ownedCourses.push(item.id);
+          localStorage.setItem('novus:db', JSON.stringify(db));
+          alert('Access granted! Find it under My Courses.');
+          location.href = 'courses.html';
+        }
+      }));
+    })();
+  </script>
+
+<script src="auth.js"></script>
+<script>
+  (function(){
+    try{
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide any admin-only links
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+      // Login/Logout/Account controls
+      const loginLink = document.getElementById('loginLink');
+      const accountLink = document.getElementById('accountLink');
+      if(user){
+        if(accountLink) accountLink.style.display = '';
+        if(loginLink){
+          loginLink.textContent = `Logout (${user.name||'Account'})`;
+          loginLink.href = '#';
+          loginLink.addEventListener('click', (e)=>{
+            e.preventDefault();
+            logoutUser();
+            // Keep on the same page but refresh UI
+            location.reload();
+          }, { once: true });
+        }
+      } else {
+        if(accountLink) accountLink.style.display = 'none';
+        if(loginLink){
+          loginLink.textContent = 'Login';
+          loginLink.href = 'login.html';
+        }
+      }
+    }catch(_){}
+  })();
+</script>
+
+
+<script src="auth.js"></script>
+<script>
+  // nav-init-singleton
+  (function(){
+    if (window.__navInitOnce) return; window.__navInitOnce = true;
+    try{
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide admin-only links
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+      // Login/Logout/Account controls
+      const loginLink = document.getElementById('loginLink');
+      const accountLink = document.getElementById('accountLink');
+      if(user){
+        if(accountLink) accountLink.style.display = '';
+        if(loginLink){
+          loginLink.textContent = `Logout (${user.name||'Account'})`;
+          loginLink.href = '#';
+          loginLink.addEventListener('click', (e)=>{
+            e.preventDefault();
+            logoutUser();
+            location.reload();
+          }, { once: true });
+        }
+      } else {
+        if(accountLink) accountLink.style.display = 'none';
+        if(loginLink){
+          loginLink.textContent = 'Login';
+          loginLink.href = 'login.html';
+        }
+      }
+    }catch(_){}
+  })();
+</script>
+
+
+<script src="auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  try{
+    const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+    const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+    const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+    const role = user?.role || null;
+    // Admin-only visibility
+    document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+      if(!(role==='admin' || role==='editor')) el.style.display='none';
+    });
+    const loginLink = document.getElementById('loginLink');
+    const accountLink = document.getElementById('accountLink');
+    if(user){
+      if(accountLink) accountLink.style.display='';
+      if(loginLink){
+        loginLink.textContent = `Logout (${user.name||'Account'})`;
+        loginLink.href = '#';
+        loginLink.onclick = (e) => { e.preventDefault(); logoutUser(); location.reload(); };
+      }
+    } else {
+      if(accountLink) accountLink.style.display='none';
+      if(loginLink){ loginLink.textContent='Login'; loginLink.href='login.html'; loginLink.onclick=null; }
+    }
+  }catch(e){ console.warn('nav init error', e); }
+});
+</script>
+
+</body>
+</html>

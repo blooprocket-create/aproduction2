@@ -1,0 +1,13 @@
+
+const { Pool } = require('pg');
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("Missing DATABASE_URL env var");
+}
+const useSSL = !/localhost|127\.0\.0\.1/.test(connectionString);
+const pool = new Pool({
+  connectionString,
+  ssl: useSSL ? { rejectUnauthorized: false } : false
+});
+module.exports = { pool };

@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Terms of Service — Novus Academy</title><link rel="stylesheet" href="styles.css"/></head>
+<body><div class="blob"></div><div class="blob b2"></div><div class="blob b3"></div>
+<header class="header"><div class="container nav"><a class="brand" href="index.html"><div class="logo"></div><span>Novus Academy</span></a></div></header>
+<main class="container section"><h1>Terms of Service</h1><div class="card">
+<p class="sub">Last updated: 2025‑09‑29</p>
+<p>Use this site to purchase and access educational content. All sales are final unless otherwise stated. You agree not to redistribute course materials.</p>
+<p>Accounts are personal. Keep credentials confidential. We may suspend access for abuse or fraud.</p>
+<p>These are placeholders. Consult counsel for production.</p>
+</div></main>
+<script src="auth.js"></script>
+<script>
+  // Hide admin/control-panel links unless role is admin/editor
+  (function(){
+    try {
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide any element with data-role="admin-link" if not admin/editor
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+    } catch(_) {}
+  })();
+</script>
+
+<script src="auth.js"></script>
+<script>
+  // nav-init-singleton
+  (function(){
+    if (window.__navInitOnce) return; window.__navInitOnce = true;
+    try{
+      const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+      const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+      const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+      const role = user?.role || null;
+      // Hide admin-only links
+      document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+        if(!(role==="admin" || role==="editor")) el.style.display="none";
+      });
+      // Login/Logout/Account controls
+      const loginLink = document.getElementById('loginLink');
+      const accountLink = document.getElementById('accountLink');
+      if(user){
+        if(accountLink) accountLink.style.display = '';
+        if(loginLink){
+          loginLink.textContent = `Logout (${user.name||'Account'})`;
+          loginLink.href = '#';
+          loginLink.addEventListener('click', (e)=>{
+            e.preventDefault();
+            logoutUser();
+            location.reload();
+          }, { once: true });
+        }
+      } else {
+        if(accountLink) accountLink.style.display = 'none';
+        if(loginLink){
+          loginLink.textContent = 'Login';
+          loginLink.href = 'login.html';
+        }
+      }
+    }catch(_){}
+  })();
+</script>
+
+
+<script src="auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  try{
+    const s = JSON.parse(localStorage.getItem('novus:session')||'null');
+    const db = JSON.parse(localStorage.getItem('novus:db')||'null');
+    const user = s && db ? (db.users||[]).find(u=>u.id===s.userId) : null;
+    const role = user?.role || null;
+    // Admin-only visibility
+    document.querySelectorAll('[data-role="admin-link"]').forEach(el=>{
+      if(!(role==='admin' || role==='editor')) el.style.display='none';
+    });
+    const loginLink = document.getElementById('loginLink');
+    const accountLink = document.getElementById('accountLink');
+    if(user){
+      if(accountLink) accountLink.style.display='';
+      if(loginLink){
+        loginLink.textContent = `Logout (${user.name||'Account'})`;
+        loginLink.href = '#';
+        loginLink.onclick = (e) => { e.preventDefault(); logoutUser(); location.reload(); };
+      }
+    } else {
+      if(accountLink) accountLink.style.display='none';
+      if(loginLink){ loginLink.textContent='Login'; loginLink.href='login.html'; loginLink.onclick=null; }
+    }
+  }catch(e){ console.warn('nav init error', e); }
+});
+</script>
+
+</body></html>

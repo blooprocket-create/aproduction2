@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang='en'><head>
+<meta charset='UTF-8'/><meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+<title>Build a Website with AI (Weekend Sprint) — Course</title><link rel='stylesheet' href='styles.css'/></head>
+<body><div class='blob'></div><div class='blob b2'></div><div class='blob b3'></div>
+<header class='header'><div class='container nav'>
+  <a class='brand' href='./'><div class='logo'></div><span>Novus Academy</span></a>
+  <nav class='flex'><a href='courses.html'>My Courses</a><a href='account.html'>Account</a></nav>
+</div></header>
+<main class='container section'>
+  <h1>Build a Website with AI (Weekend Sprint)</h1>
+  <div class='card'><p class='sub'>Welcome back! Below is the roadmap; videos and downloads plug in where needed.</p>
+    <ol style='color:var(--muted)'><li><b>Kickoff & Goals:</b> Clarify audience, outcomes, and value prop. Sketch a content outline.</li><li><b>Design System:</b> Set typography scale, spacing, and color tokens. Build a header/footer.</li><li><b>AI Scaffolding:</b> Prompt an AI to generate sections; refactor into clean components.</li><li><b>Deploy:</b> Ship to Netlify/Vercel. Add domain & basic analytics.</li></ol>
+    <div class='flex' style='margin-top:12px'><a class='btn' href='courses.html'>Back to My Courses</a></div>
+  </div>
+</main>
+<script src='auth.js'></script>
+<script>
+  const db=JSON.parse(localStorage.getItem('novus:db'));
+  const course=db.courses.find(c=>c.slug==='ai-website-weekend'); if(!course){ alert('Course not found.'); location.href='./'; }
+  requireRole(['customer','admin','editor']);
+  const u=currentUser(); if(u.role==='customer' && !userOwnsCourse(course.id,u)){ alert("You don't own this course."); location.href='account.html'; }
+</script>
+</body></html>
