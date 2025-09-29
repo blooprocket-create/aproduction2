@@ -28,6 +28,6 @@ async function renderCourses(){
     const u=currentUser(); if(!u){ if(confirm('You need an account to buy. Create one now?')) location.href='register.html?next=account.html'; return; }
     const out = await API.post('purchase', {courseId:id}, true);
     if(out.error){ alert(out.error); return; }
-    alert('Access granted! Visit My Courses.'); location.href='courses.html';
+    alert('Access granted! Visit My Courses.'); location.href='account.html';
   }));
 }
