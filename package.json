@@ -1,12 +1,11 @@
 {
   "name": "novus-academy-netlify",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "netlify dev",
-    "build": "echo 'Static build'",
-    "serve": "netlify dev"
+    "build": "echo static",
+    "dev": "netlify dev"
   },
   "dependencies": {
     "pg": "^8.11.3",

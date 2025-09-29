@@ -1,47 +1,6 @@
-
-/* auth.js (Netlify + Postgres) */
-const API = {
-  base: '',
-  async post(path, data, auth=false){
-    const res = await fetch(`/api/${path}`, {
-      method:'POST',
-      headers: { 'Content-Type':'application/json', ...(auth?authHeader():{}) },
-      body: JSON.stringify(data||{})
-    });
-    return res.json();
-  },
-  async get(path, auth=false){
-    const res = await fetch(`/api/${path}`, { headers: { ...(auth?authHeader():{}) } });
-    return res.json();
-  }
-};
-
-function saveSession({token, user}){
-  localStorage.setItem('novus:token', token);
-  localStorage.setItem('novus:user', JSON.stringify(user));
-}
-function authHeader(){
-  const t = localStorage.getItem('novus:token'); return t? { Authorization: 'Bearer ' + t } : {};
-}
-function currentUser(){ try{return JSON.parse(localStorage.getItem('novus:user')||'null')}catch{return null} }
-function logoutUser(){ localStorage.removeItem('novus:token'); localStorage.removeItem('novus:user'); }
-
-async function registerUser({name,email,password}){
-  const out = await API.post('register', {name,email,password});
-  if(out.error) throw new Error(out.error);
-  saveSession(out); return out.user;
-}
-async function loginUser({email,password}){
-  const out = await API.post('login', {email,password});
-  if(out.error) throw new Error(out.error);
-  saveSession(out); return out.user;
-}
-function requireRole(roles){
-  const u=currentUser();
-  if(!u){ location.href='login.html?next='+encodeURIComponent(location.pathname); return; }
-  if(Array.isArray(roles) && roles.length && !roles.includes(u.role)){
-    alert('You do not have access to this page.');
-    location.href='index.html';
-  }
-}
-function userOwnsCourse(courseId){ /* server validates on course pages; this is unused client-side now */ return true; }
+const API={async _parseJSON(r){const t=await r.text();try{return JSON.parse(t)}catch{throw new Error(`API returned non-JSON (status ${r.status}). First bytes: ${t.slice(0,120)}`)}},async get(p,a=!1){const r=await fetch(`/api/${p}`,{headers:{...(a?authHeader():{})}});return this._parseJSON(r)},async post(p,d,a=!1){const r=await fetch(`/api/${p}`,{method:"POST",headers:{"Content-Type":"application/json",...(a?authHeader():{})},body:JSON.stringify(d||{})});return this._parseJSON(r)}};function currentUser(){try{return JSON.parse(localStorage.getItem("novus:user")||"null")}catch{return null}}function saveSession({token:t,user:e}){localStorage.setItem("novus:token",t),localStorage.setItem("novus:user",JSON.stringify(e))}function logoutUser(){localStorage.removeItem("novus:token"),localStorage.removeItem("novus:user"),location.href="index.html"}function authHeader(){const t=localStorage.getItem("novus:token");return t?{Authorization:"Bearer "+t}:{}}function initNav(){const t=currentUser(),e=document.querySelector("nav.flex");if(!e)return;e.innerHTML=`
+    <a href="catalog.html">Courses</a>
+    <a id="accountLink" href="account.html" style="display:none">Account</a>
+    <a id="adminLink" href="admin.html" class="btn secondary" style="display:none">Control Panel</a>
+    <a id="loginLink" href="login.html">Login</a>
+  `;const n=document.getElementById("loginLink"),o=document.getElementById("accountLink"),a=document.getElementById("adminLink");if(t){o&&(o.style.display=""),n&&(n.textContent=`Logout (${t.name||"Account"})`,n.href="#",n.addEventListener("click",s=>{s.preventDefault(),logoutUser()}));const s=t.role||"customer";(s==="admin"||s==="editor")&&a&&(a.style.display="")}else o&&(o.style.display="none"),a&&(a.style.display="none"),n&&(n.textContent="Login",n.href="login.html")}document.addEventListener("DOMContentLoaded",initNav);
