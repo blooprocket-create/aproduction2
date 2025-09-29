@@ -1,0 +1,14 @@
+{
+  "name": "novus-academy-vercel",
+  "version": "1.3.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "echo static"
+  },
+  "dependencies": {
+    "pg": "^8.11.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
