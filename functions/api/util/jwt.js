@@ -1,1 +1,1 @@
-const jwt=require('jsonwebtoken');const SECRET=process.env.JWT_SECRET||'dev-secret-change-me';function sign(p,o={}){return jwt.sign(p,SECRET,{expiresIn:'7d',...o})}function verify(t){try{return jwt.verify(t,SECRET)}catch(_){return null}}module.exports={sign,verify};
+const jwt=require('jsonwebtoken'); const SECRET=process.env.JWT_SECRET||'dev-secret-change-me'; const sign=(p,o={})=>jwt.sign(p,SECRET,{expiresIn:'7d',...o}); const verify=(t)=>{try{return jwt.verify(t,SECRET)}catch(_){return null}}; module.exports={sign,verify};
